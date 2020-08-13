@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Collection;
+use Exception;
 use Illuminate\Http\Request;
 
 class CollectionController extends Controller
@@ -13,7 +15,9 @@ class CollectionController extends Controller
      */
     public function index()
     {
-        return view('collections');
+        $resource = Collection::get();
+
+        return view('collections', ['collections' => $resource]);
     }
 
     /**
@@ -34,7 +38,16 @@ class CollectionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $collection = new Collection();
+        $collection->name = $request->name;
+
+        try {
+            $collection->save();
+        } catch (Exception $e) {
+            return response()->json($e, 404);
+        }
+
+        return response()->json($collection);
     }
 
     /**
@@ -45,7 +58,13 @@ class CollectionController extends Controller
      */
     public function show($id)
     {
-        //
+        $resource = Collection::find($id);
+
+        if (is_null($resource)) {
+            return response()->json(['Error' => 'Collection not found'], 404);
+        }
+
+        return response()->json($resource);
     }
 
     /**
@@ -68,7 +87,16 @@ class CollectionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $resource = Collection::find($id);
+
+        if (is_null($resource)) {
+            return response()->json(['Error' => 'Collection not found'], 404);
+        }
+
+        $resource->fill($request->all());
+        $resource->save();
+
+        return response()->json($resource);
     }
 
     /**
@@ -79,6 +107,12 @@ class CollectionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $quantity = Collection::destroy($id);
+
+        if ($quantity === 0) {
+            return response()->json(['Error' => 'Collection not found'], 404);
+        }
+
+        return response()->json(['Message' => 'The collection was deleted.'], 200);
     }
 }
