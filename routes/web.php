@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('index');
+    return view('signin');
 });
 
 Route::get('/my-collections', 'CollectionController@index');
